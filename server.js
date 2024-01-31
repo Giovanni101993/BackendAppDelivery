@@ -5,9 +5,11 @@ const server = http.createServer(app);
 const logger = require('morgan');
 const cors = require('cors');
 const passport = require('passport');
+const multer = require('multer');
 
 //IMPORTAR RUTAS
 const usersRoutes = require('./routes/usersRoutes');
+const categoriesRoutes = require('./routes/categoryRoutes');
 
 const port = process.env.PORT || 3000;
 
@@ -23,10 +25,16 @@ app.use(passport.session());
 require('./config/passport')(passport);
 
 app.disable('x-powered-by');
+
 app.set('port', port);
 
+const upload = multer({
+    storage: multer.memoryStorage()
+});
+
 //LLAMADO DE LAS RUTAS
-usersRoutes(app);
+usersRoutes(app, upload);
+categoriesRoutes(app, upload);
 
 server.listen(3000, '192.168.20.25' || 'localhost', function(){
     console.log('Aplicacion de nodeJS ' + port + ' Iniciada...')

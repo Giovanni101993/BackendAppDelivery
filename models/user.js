@@ -6,17 +6,36 @@ User.findById = (id, result) => {
 
     const sql =
     `
-        SELECT
-            id,
-            email,
-            name,
-            lastname,
-            image,
-            password
-        FROM
-            users
-        WHERE
-            id = ?
+    SELECT
+    U.id,
+    U.email,
+    U.name,
+    U.lastname,
+    U.image,
+    U.phone,
+    U.password,
+    JSON_ARRAYAGG(
+        JSON_OBJECT(
+            'id', CONVERT(R.id, char),
+            'name', R.name,
+            'image', R.image,
+            'route', R.route
+        )
+    )AS roles
+    FROM
+        users AS U
+    INNER JOIN
+        user_has_roles AS UHR
+    ON
+        UHR.id_user = U.id
+    INNER JOIN
+        roles as R
+    On UHR.id_rol = R.id
+    WHERE
+        U.id= ?
+    GROUP BY
+        U.id
+
     `;
 
     db.query(
@@ -39,17 +58,35 @@ User.findByEmail = (email, result) => {
 
     const sql =
     `
-        SELECT
-            id,
-            email,
-            name,
-            lastname,
-            image,
-            password
-        FROM
-            users
-        WHERE
-            email = ?
+    SELECT
+    U.id,
+    U.email,
+    U.name,
+    U.lastname,
+    U.image,
+    U.phone,
+    U.password,
+    JSON_ARRAYAGG(
+        JSON_OBJECT(
+            'id', CONVERT(R.id, char),
+            'name', R.name,
+            'image', R.image,
+            'route', R.route
+        )
+    )AS roles
+    FROM
+        users AS U
+    INNER JOIN
+        user_has_roles AS UHR
+    ON
+        UHR.id_user = U.id
+    INNER JOIN
+        roles as R
+    On UHR.id_rol = R.id
+    WHERE
+        email = ?
+    GROUP BY
+        U.id
     `;
 
     db.query(
@@ -95,6 +132,7 @@ User.create = async (user, result) => {
             user.lastname,
             user.phone,
             user.image,
+            //user.password,
             hash,
             new Date(),
             new Date() 
@@ -107,6 +145,90 @@ User.create = async (user, result) => {
             else{
                 console.log('Id del nuevo usuario: ', res.insertId);
                 result(null, res.insertId);
+            }
+        }
+    )
+}
+
+User.update = async (user, result)  => {
+
+    const hash = await bcrypt.hash(user.password, 10);
+
+    const sql = `
+    UPDATE
+        users
+    SET
+        name = ?,
+        lastname = ?,
+        phone = ?,
+        password = ?,
+        image = ?,
+        updated_at = ?
+    WHERE
+        id = ?
+    `; 
+db.query
+    (
+        sql,
+        [
+            user.name,
+            user.lastname,
+            user.phone,
+            //user.password,
+            hash,
+            user.image,
+            new Date(),
+            user.id
+        ],
+        (err, res) =>{
+            if(err){
+                console.log('Error: ', err);
+                result(err, null);
+            }
+            else{
+                console.log('Usuario actualizado: ', res.insertId);
+                result(null, user.id);
+            }
+        }
+    )
+}
+
+User.updateWithoutImage = async (user, result)  => {
+
+    const hash = await bcrypt.hash(user.password, 10);
+
+    const sql = `
+    UPDATE
+        users
+    SET
+        name = ?,
+        lastname = ?,
+        phone = ?,
+        password = ?,
+        updated_at = ?
+    WHERE
+        id = ?
+    `; 
+db.query
+    (
+        sql,
+        [
+            user.name,
+            user.lastname,
+            user.phone,
+            hash,
+            //user.password,
+            new Date(),
+            user.id
+        ],
+        (err, res) =>{
+            if(err){
+                console.log('Error: ', err);
+                result(err, null);
+            }
+            else{
+                console.log('Usuario actualizado: ', res.insertId);
+                result(null, user.id);
             }
         }
     )
