@@ -78,3 +78,17 @@ CREATE TABLE categories(
     created_at TIMESTAMP(0) NOT NULL,
     updated_at TIMESTAMP(0) NOT NULL
 );
+
+CREATE TABLE products (
+    id BIGINT PRIMARY KEY AUTO_INCREMENT,
+    name VARCHAR(180) not NULL UNIQUE,
+    description TEXT NOT NULL,
+    price Decimal NOT NULL,
+    image1 VARCHAR(255) NULL,
+    image2 VARCHAR(255) NULL,
+    image3 VARCHAR(255) NULL,
+    id_category BIGINT NOT NULL,
+    created_at TIMESTAMP(0) NOT NULL,
+    updated_at TIMESTAMP(0) NOT NULL,
+    FOREIGN key(id_category) REFERENCES categories(id) ON UPDATE CASCADE ON DELETE CASCADE
+);
