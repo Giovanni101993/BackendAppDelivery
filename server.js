@@ -12,6 +12,7 @@ const usersRoutes = require('./routes/usersRoutes');
 const categoriesRoutes = require('./routes/categoryRoutes');
 const productRoutes = require('./routes/productRoutes');
 const port = process.env.PORT || 3000;
+//const port = process.env.PORT || 3306;
 
 app.use(logger('dev'));
 app.use(express.json());
@@ -36,6 +37,10 @@ const upload = multer({
 usersRoutes(app, upload);
 categoriesRoutes(app, upload);
 productRoutes(app, upload);
+
+/*server.listen(3306, '185.27.134.135' || '185.27.134.135', function(){
+    console.log('Aplicacion de nodeJS ' + port + ' Iniciada...')
+});*/
 
 server.listen(3000, '192.168.20.25' || 'localhost', function(){
     console.log('Aplicacion de nodeJS ' + port + ' Iniciada...')
