@@ -92,3 +92,15 @@ CREATE TABLE products (
     updated_at TIMESTAMP(0) NOT NULL,
     FOREIGN key(id_category) REFERENCES categories(id) ON UPDATE CASCADE ON DELETE CASCADE
 );
+
+CREATE TABLE address(
+    id BIGINT PRIMARY KEY AUTO_INCREMENT,
+    address VARCHAR(255) NOT NULL,
+    neighborhood VARCHAR(180) NOT NULL,
+    lat DOUBLE NOT NULL,
+    lng DOUBLE NOT NULL,
+    created_at TIMESTAMP(0),
+    updated_at TIMESTAMP(0),
+    id_user BIGINT NOT NULL,
+    FOREIGN KEY (id_user) REFERENCES users(id)
+);
