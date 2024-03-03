@@ -6,12 +6,15 @@ const logger = require('morgan');
 const cors = require('cors');
 const passport = require('passport');
 const multer = require('multer');
+const io = require('socket.io')(server);
 
 //IMPORTAR RUTAS
 const usersRoutes = require('./routes/usersRoutes');
 const categoriesRoutes = require('./routes/categoryRoutes');
 const productRoutes = require('./routes/productRoutes');
 const addressRoutes = require('./routes/addressRoutes');
+const orderRoutes = require('./routes/orderRoutes');
+const ordersSocket = require('./sockets/ordersSocket');
 
 const port = process.env.PORT || 3000;
 //const port = process.env.PORT || 3306;
@@ -31,6 +34,8 @@ app.disable('x-powered-by');
 
 app.set('port', port);
 
+ordersSocket(io);
+
 const upload = multer({
     storage: multer.memoryStorage()
 });
@@ -40,6 +45,7 @@ usersRoutes(app, upload);
 categoriesRoutes(app, upload);
 productRoutes(app, upload);
 addressRoutes(app);
+orderRoutes(app);
 
 /*server.listen(3306, '185.27.134.135' || '185.27.134.135', function(){
     console.log('Aplicacion de nodeJS ' + port + ' Iniciada...')
