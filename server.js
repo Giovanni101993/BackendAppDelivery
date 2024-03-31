@@ -10,11 +10,14 @@ const io = require('socket.io')(server);
 
 //IMPORTAR RUTAS
 const usersRoutes = require('./routes/usersRoutes');
+const deliveryRoutes = require('./routes/deliveryRoutes');
 const categoriesRoutes = require('./routes/categoryRoutes');
 const productRoutes = require('./routes/productRoutes');
 const addressRoutes = require('./routes/addressRoutes');
 const orderRoutes = require('./routes/orderRoutes');
+const paymentRoutes = require('./routes/paymentRoutes');
 const ordersSocket = require('./sockets/ordersSocket');
+
 
 const port = process.env.PORT || 3000;
 //const port = process.env.PORT || 3306;
@@ -42,10 +45,12 @@ const upload = multer({
 
 //LLAMADO DE LAS RUTAS
 usersRoutes(app, upload);
+deliveryRoutes(app, upload);
 categoriesRoutes(app, upload);
 productRoutes(app, upload);
 addressRoutes(app);
 orderRoutes(app);
+paymentRoutes(app, upload);
 
 /*server.listen(3306, '185.27.134.135' || '185.27.134.135', function(){
     console.log('Aplicacion de nodeJS ' + port + ' Iniciada...')

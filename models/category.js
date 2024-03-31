@@ -1,7 +1,7 @@
 const db = require('../config/config');
 const Category = {};
 
-Category.getAll = (result) => {
+Category.getAll = (resultado) => {
     const sql = `
     SELECT
         id,
@@ -18,11 +18,11 @@ Category.getAll = (result) => {
         (err, data) => {
             if(err){
                 console.log('Error', err);
-                result(err, null);
+                resultado(err, null);
             }
             else{
                 console.log('Id de la categoria', data);
-                result(null, data);
+                resultado(null, data);
             }
         }
     )

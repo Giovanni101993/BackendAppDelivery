@@ -13,7 +13,7 @@ Address.findByUser = (id_user, result) => {
         FROM
             address
         WHERE
-        id_user = ?
+            id_user = ?
     `;
 
     db.query(

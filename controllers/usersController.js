@@ -1,5 +1,6 @@
 const User = require('../models/user');
 const Rol = require('../models/rol');
+const StoreHasDelivery = require('../models/store_has_delivery');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const keys = require('../config/keys');
@@ -124,26 +125,49 @@ module.exports = {
             const token = jwt.sign({id: user.id, email: user.email}, keys.secretOrKey,{});
             user.session_token = `JWT ${token}`;
 
-            Rol.create(user.id, 3, (err, data) => {
-                if(err){
-                    return res.status(501).json({
-                        success: false,
-                        message: 'Hubo un error con el registro del rol de usuario',
-                        error: err
-                    });
-                }
-                else{
-                    return res.status(201).json({
-                        success: true,
-                        message: 'El registro se realizo correctamente',
-                        data:user
-                    });
-                }
-            });
-        });
+            if (user.name_store !== '') {
+                
+                Rol.create(user.id, 2, (err, data) => {
+                    if(err){
+                        return res.status(501).json({
+                            success: false,
+                            message: 'Hubo un error con el registro del rol de usuario',
+                            error: err
+                        });
+                    }
+                    else{
+                        return res.status(201).json({
+                            success: true,
+                            message: 'El registro se realizo correctamente',
+                            data:user
+                        });
+                    }
+                });
+            }
+            else{   
+                Rol.create(user.id, 3, (err, data) => {
+                    if(err){
+                        return res.status(501).json({
+                            success: false,
+                            message: 'Hubo un error con el registro del rol de usuario',
+                            error: err
+                        });
+                    }
+                    else{
+                        return res.status(201).json({
+                            success: true,
+                            message: 'El registro se realizo correctamente',
+                            data:user
+                        });
+                    }
+                });
+            }
+        });  
     },
 
     async updateWithImage(req, res){
+
+        user.id = id_iser;
         const user = JSON.parse(req.body.user); //CAPTURA LOS DATOS DE USUARIO
 
         const files = req.files;
@@ -161,7 +185,7 @@ module.exports = {
 
             if(err){
                 return res.status(501).json({
-                    success: false,
+                 success: false,
                     message: 'Hubo un error con el registro del usuario',
                     error: err
                 });
@@ -199,4 +223,103 @@ module.exports = {
             }
         });
     },
+
+    findByRol(req, res){
+        const id_user = req.params.id_user;
+        const id_rol = req.params.id_rol;
+
+        Rol.findByRol(id_user, id_rol, (err, data) =>{
+            if(err){
+                return res.status(501).json({
+                    success: false,
+                    message: 'Hubo un error',
+                    error: err
+                });
+            }
+            return res.status(201).json(data);
+        });
+    },
+
+    async getAllStore(req, res){        
+        User.getAllStore((err, data) => {
+            if(err){
+                return res.status(501).json({
+                    success: false,
+                    message: 'Hubo un problema al listar las tiendas',
+                    error: err
+                });
+            }
+
+            return res.status(201).json(data);
+        });
+    },
+
+    /*createDelivery(req, res){
+        const user = req.body; //CAPTURA LOS DATOS DE USUARIO
+        //const id_store = req.body.id_store;
+
+        User.registerDelivery(user, (err, data) =>{
+
+            if(err){
+                return res.status(501).json({
+                    success: false,
+                    message: 'Hubo un error con el registro del usuario',
+                    error: err
+                });
+            }
+
+            return res.status(201).json({
+                success: true,
+                message: 'El registro se realizo correctamente',
+                data: data //ES EL ID DEL NUEVO USUARIO
+            });
+        });
+    },
+
+    async createDeliveryWithImage(req, res){
+        console.log(req.body.user);
+        const user = JSON.parse(req.body.user); //CAPTURA LOS DATOS DE USUARIO
+        //const id_store = req.params.id_store;
+        const files = req.files;
+
+        if(files.length > 0){
+            const path = `image_${Date.now()}`;
+            const url = await storage(files[0], path);
+
+            if (url != undefined && url != null){
+                user.image = url;
+            }
+        }
+
+        User.registerDelivery(user, (err, data) =>{
+
+            if(err){
+                return res.status(501).json({
+                    success: false,
+                    message: 'Hubo un error con el registro del usuario',
+                    error: err
+                });
+            }
+
+            user.id = `${data}`;
+            const token = jwt.sign({id: user.id, email: user.email}, keys.secretOrKey,{});
+            user.session_token = `JWT ${token}`;
+
+            StoreHasDelivery.create(user.id, delivery.id, (err, id_data) => {
+                if(err){
+                    return res.status(501).json({
+                        success: false,
+                        message: 'Hubo un error con la asignacion de repartidor_tienda',
+                        error: err
+                    });
+                }
+            });
+
+                        return res.status(201).json({
+                            success: true,
+                            message: 'El registro se realizo correctamente',
+                            data: user
+                        });
+        });  
+    },*/
 }

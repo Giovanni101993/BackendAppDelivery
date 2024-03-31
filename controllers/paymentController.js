@@ -1,10 +1,11 @@
-const Category = require('../models/category');
+const Payment = require('../models/payment');
 const storage = require('../utils/cloud_storage');
+
 
 module.exports = {
 
     async getAll(req, res){        
-        Category.getAll((err, data) => {
+        Payment.getAll((err, data) => {
             if(err){
                 return res.status(501).json({
                     success: false,
@@ -17,9 +18,24 @@ module.exports = {
         });
     },
 
+    getPaymentByUser(req, res){
+        const id_user = req.params.id_user;
+        Payment.getPaymentByUser(id_user, (err, data) => {
+            if(err){
+                return res.status(501).json({
+                    success: false,
+                    message: 'Hubo un error con las medios de pago',
+                    error: err
+                });
+            }
+
+            return res.status(201).json(data);  
+        })
+    },
+
     async create(req, res){
-        const category = JSON.parse(req.body.category);
-        console.log(category); 
+        const payment = JSON.parse(req.body.payment);
+        console.log('PAYMENT: ', payment); 
         const files = req.files;
 
         if(files.length > 0){
@@ -27,11 +43,11 @@ module.exports = {
             const url = await storage(files[0], path);
 
             if (url != undefined && url != null){
-                category.image = url;
+                payment.code_qr = url;
             }
         }
 
-        Category.create(category, (err, id) =>{
+        Payment.create(payment, req.user.id, (err, data) =>{
 
             if(err){
                 return res.status(501).json({
@@ -43,33 +59,14 @@ module.exports = {
 
             return res.status(201).json({
                 success: true,
-                message: 'La categoría se registro correctamente',
-                data: `${id}`
+                message: 'El QR se registro correctamente',
+                data: `${data}`
             });          
         });
     },
 
-    async delete(req, res){
-        const id = req.params.id;
-        Category.delete(id, (err, data) => {
-            if(err){
-                return res.status(501).json({
-                    success: false,
-                    message: 'Hubo un error al eliminar la categoria',
-                    error: err
-                });
-            }
-
-            return res.status(201).json({
-                success: true,
-                message: 'La categoría se elimino',
-                data: `${id}`
-            });    
-        });
-    },
-
     async updateWithImage(req, res){
-        const category = JSON.parse(req.body.category); //CAPTURA LOS DATOS DE USUARIO
+        const payment = JSON.parse(req.body.payment); //CAPTURA LOS DATOS DE USUARIO
 
         const files = req.files;
 
@@ -78,10 +75,10 @@ module.exports = {
             const url = await storage(files[0], path);
 
             if (url != undefined && url != null){
-                category.image = url;
+                payment.code_qr = url;
             }
         }
-        Category.update(category, (err, id) =>{
+        Payment.update(payment, (err, id) =>{
 
             if(err){
                 return res.status(501).json({
@@ -93,30 +90,48 @@ module.exports = {
 
             return res.status(201).json({
                 success: true,
-                message: 'La categoría se actualizo correctamente',
+                message: 'El código se actualizo correctamente',
                 data: `${id}`
             });          
         });
     },
 
     async update(req, res){
-        const category = req.body; //CAPTURA LOS DATOS DE USUARIO
+        const payment = req.body; //CAPTURA LOS DATOS DE USUARIO
 
-        Category.update(category, (err, id) =>{
+        Payment.update(payment, (err, id) =>{
 
             if(err){
                 return res.status(501).json({
                     success: false,
-                    message: 'Hubo un error con la actualización de la categoría',
+                    message: 'Hubo un error con la actualización del código',
                     error: err
                 });
             }
 
             return res.status(201).json({
                 success: true,
-                message: 'La categoría se actualizo correctamente',
+                message: 'El código se actualizo correctamente',
                 data: `${id}`
             });          
+        });
+    },
+    async delete(req, res){
+        const id = req.params.id;
+        Payment.delete(id, (err, data) => {
+            if(err){
+                return res.status(501).json({
+                    success: false,
+                    message: 'Hubo un error al eliminar el código',
+                    error: err
+                });
+            }
+
+            return res.status(201).json({
+                success: true,
+                message: 'El código se elimino',
+                data: `${id}`
+            });    
         });
     },
 }

@@ -74,7 +74,7 @@ User.findDeliveryMen = (result) => {
     ON
         R.id = UHR.id_rol
     WHERE
-        R.id = 2
+        R.id = 4
     `;
     db.query(
         sql,
@@ -142,7 +142,6 @@ User.findByEmail = (email, result) => {
 }
 
 User.create = async (user, result) => {
-
     const hash = await bcrypt.hash(user.password, 10);
     const sql = `
         INSERT INTO
@@ -150,13 +149,16 @@ User.create = async (user, result) => {
                 email,
                 name,
                 lastname,
+                name_store,
+                address,
+                business_type,
                 phone,
                 image,
                 password,
                 created_at,
                 updated_at
             )
-        VALUES(?, ?, ?, ?, ?, ?, ?, ?)
+        VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     `;
 
     db.query
@@ -166,9 +168,11 @@ User.create = async (user, result) => {
             user.email,
             user.name,
             user.lastname,
+            user.name_store,
+            user.address,
+            user.business_type,
             user.phone,
             user.image,
-            //user.password,
             hash,
             new Date(),
             new Date() 
@@ -188,8 +192,6 @@ User.create = async (user, result) => {
 
 User.update = async (user, result)  => {
 
-    const hash = await bcrypt.hash(user.password, 10);
-
     const sql = `
     UPDATE
         users
@@ -197,7 +199,6 @@ User.update = async (user, result)  => {
         name = ?,
         lastname = ?,
         phone = ?,
-        password = ?,
         image = ?,
         updated_at = ?
     WHERE
@@ -210,8 +211,6 @@ db.query
             user.name,
             user.lastname,
             user.phone,
-            //user.password,
-            hash,
             user.image,
             new Date(),
             user.id
@@ -230,9 +229,6 @@ db.query
 }
 
 User.updateWithoutImage = async (user, result)  => {
-
-    const hash = await bcrypt.hash(user.password, 10);
-
     const sql = `
     UPDATE
         users
@@ -240,7 +236,6 @@ User.updateWithoutImage = async (user, result)  => {
         name = ?,
         lastname = ?,
         phone = ?,
-        password = ?,
         updated_at = ?
     WHERE
         id = ?
@@ -252,8 +247,6 @@ db.query
             user.name,
             user.lastname,
             user.phone,
-            hash,
-            //user.password,
             new Date(),
             user.id
         ],
@@ -269,5 +262,84 @@ db.query
         }
     )
 }
+
+User.getAllStore = (resultado) => {
+    const sql = `
+    SELECT
+        U.id,
+        U.name_store,
+        U.address,
+        U.business_type,
+        U.phone,
+        U.image
+    FROM
+        users AS U
+    INNER JOIN
+        user_has_roles AS UHR
+    ON
+        UHR.id_user = U.id
+    WHERE
+        UHR.id_rol = 2
+    ORDER BY 
+        U.name_store
+    `;
+    db.query(
+        sql,
+        (err, data) => {
+            if(err){
+                console.log('Error', err);
+                resultado(err, null);
+            }
+            else{
+                console.log('Id de la tienda', data);
+                resultado(null, data);
+            }
+        }
+    )
+}
+
+/*User.registerDelivery = async (delivery, result) => {
+
+    const hash = await bcrypt.hash(delivery.password, 10);
+    const sql = `
+        INSERT INTO
+            delivery(
+                email,
+                name,
+                lastname,
+                phone,
+                image,
+                password,
+                created_at,
+                updated_at
+            )
+        VALUES(?, ?, ?, ?, ?, ?, ?, ?)
+    `;
+
+    db.query
+    (
+        sql,
+        [
+            delivery.email,
+            delivery.name,
+            delivery.lastname,
+            delivery.phone,
+            delivery.image,
+            hash,
+            new Date(),
+            new Date() 
+        ],
+        (err, res) =>{
+            if(err){
+                console.log('Error: ', err);
+                result(err, null);
+            }
+            else{
+                console.log('Id del nuevo usuario: ', res.insertId);
+                result(null, res.insertId);
+            }
+        }
+    )
+}*/
 
 module.exports = User;

@@ -75,8 +75,10 @@ CREATE TABLE categories(
     name VARCHAR(180) NOT NULL,
     description TEXT NOT NULL,
     image VARCHAR(255) NULL,
+    id_user BIGINT NOT NULL,
     created_at TIMESTAMP(0) NOT NULL,
-    updated_at TIMESTAMP(0) NOT NULL
+    updated_at TIMESTAMP(0) NOT NULL,
+    FOREIGN KEY (id_user) REFERENCES users(id) ON UPDATE CASCADE ON DELETE CASCADE
 );
 
 CREATE TABLE products (
@@ -88,9 +90,11 @@ CREATE TABLE products (
     image2 VARCHAR(255) NULL,
     image3 VARCHAR(255) NULL,
     id_category BIGINT NOT NULL,
+    id_user BIGINT NOT NULL,
     created_at TIMESTAMP(0) NOT NULL,
     updated_at TIMESTAMP(0) NOT NULL,
-    FOREIGN key(id_category) REFERENCES categories(id) ON UPDATE CASCADE ON DELETE CASCADE
+    FOREIGN key(id_category) REFERENCES categories(id) ON UPDATE CASCADE ON DELETE CASCADE,
+    FOREIGN key(id_user) REFERENCES users(id) ON UPDATE CASCADE ON DELETE CASCADE
 );
 
 CREATE TABLE address(
@@ -130,6 +134,17 @@ CREATE TABLE order_has_products(
     PRIMARY KEY (id_order, id_product),
     FOREIGN KEY(id_order) REFERENCES orders(id) ON UPDATE CASCADE ON DELETE CASCADE,
     FOREIGN KEY(id_product) REFERENCES products(id) ON UPDATE CASCADE ON DELETE CASCADE
+);
+
+CREATE TABLE payment(
+    id BIGINT PRIMARY KEY AUTO_INCREMENT,
+    code_qr VARCHAR(255) NULL,
+    bank VARCHAR (90) NOT NULL,
+    phone VARCHAR NOT NULL,
+    id_user BIGINT NOT NULL,
+    created_at TIMESTAMP(0) NOT NULL,
+    updated_at TIMESTAMP(0) NOT NULL,
+    FOREIGN KEY(id_user) REFERENCES users(id) ON UPDATE CASCADE ON DELETE CASCADE
 );
 
 

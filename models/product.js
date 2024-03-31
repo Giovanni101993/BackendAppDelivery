@@ -1,7 +1,7 @@
 const db = require('../config/config');
 const Product = {};
 
-Product.findByCategory = (id_category, result) => {
+Product.findByStore = (id_user, result) => {
     const sql = `
     SELECT
         P.id,
@@ -11,16 +11,17 @@ Product.findByCategory = (id_category, result) => {
         P.image1,
         P.image2,
         P.image3,
-        P.id_category
+        P.id_category,
+        P.id_user
     FROM
         products as P
     WHERE
-        P.id_category = ?
+        P.id_user = ?
     `;
 
     db.query(
         sql,
-        [id_category],
+        [id_user],
         (err, res) => {
             if(err){
                 console.log('ERROR: ', err);
@@ -34,7 +35,45 @@ Product.findByCategory = (id_category, result) => {
     );
 }
 
-Product.create = (product, result) => {
+Product.findByCategoryAndUser = (id_user, id_category, result) => {
+    
+    const sql = `
+    SELECT 
+        P.*
+    FROM 
+        products AS P
+    INNER JOIN
+        categories AS C
+    ON
+        C.id = P.id_category
+    INNER JOIN 
+        users AS U 
+    ON 
+        U.id = P.id_user 
+    WHERE 
+    P.id_user = ?
+    AND
+    P.id_category = ?
+    `;
+
+    db.query(
+        sql,
+        [id_user, id_category],
+        (err, res) => {
+            if(err){
+                console.log('ERROR: ', err);
+                result(err, null);
+                
+            }
+            else{
+                console.log('Id del producto: ', res);
+                result(null, res);
+            }
+        }
+    );
+}
+
+Product.create = (product, id_user, result) => {
     const sql = `
         INSERT INTO 
             products(
@@ -45,10 +84,11 @@ Product.create = (product, result) => {
                 image2,
                 image3,
                 id_category,
+                id_user,
                 created_at,
                 updated_at
             )
-        VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?)
+        VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     `;
 
     db.query(
@@ -61,6 +101,7 @@ Product.create = (product, result) => {
             product.image2,
             product.image3,
             product.id_category,
+            id_user,
             new Date(),
             new Date()
         ],
