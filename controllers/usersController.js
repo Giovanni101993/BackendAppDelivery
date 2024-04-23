@@ -1,6 +1,6 @@
 const User = require('../models/user');
 const Rol = require('../models/rol');
-const StoreHasDelivery = require('../models/store_has_delivery');
+const StoreHasDelivery = require('../models/store_has_delivery.js');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const keys = require('../config/keys');
@@ -9,7 +9,8 @@ const storage = require('../utils/cloud_storage');
 module.exports = {
     
     findDeliveryMen(req, res){
-        User.findDeliveryMen((err, data) => {
+        const id_store = req.params.id_store; 
+        User.findDeliveryMen(id_store, (err, data) => {
             if(err){
                 return res.status(501).json({
                     success: false,
@@ -125,9 +126,41 @@ module.exports = {
             const token = jwt.sign({id: user.id, email: user.email}, keys.secretOrKey,{});
             user.session_token = `JWT ${token}`;
 
+            if (user.id_store) {
+                StoreHasDelivery.create(user.id_store, user.id, (err, data) => {
+                    if (err) {
+                        return res.status(501).json({
+                            success: false,
+                            message: 'Hubo un error al crear la relación en store_has_delivery',
+                            error: err
+                        });
+                    } else {
+                        console.log('Relación creada en store_has_delivery');
+                    }
+                });
+            }
+
             if (user.name_store !== '') {
                 
                 Rol.create(user.id, 2, (err, data) => {
+                    if(err){
+                        return res.status(501).json({
+                            success: false,
+                            message: 'Hubo un error con el registro del rol de usuario',
+                            error: err
+                        });
+                    }
+                    else{
+                        return res.status(201).json({
+                            success: true,
+                            message: 'El registro se realizo correctamente',
+                            data:user
+                        });
+                    }
+                });
+            }
+            else if (user.id_store !== '') {
+                Rol.create(user.id, 4, (err, data) => {
                     if(err){
                         return res.status(501).json({
                             success: false,
@@ -167,7 +200,7 @@ module.exports = {
 
     async updateWithImage(req, res){
 
-        user.id = id_iser;
+        //user.id = id_user;
         const user = JSON.parse(req.body.user); //CAPTURA LOS DATOS DE USUARIO
 
         const files = req.files;
@@ -254,11 +287,12 @@ module.exports = {
         });
     },
 
-    /*createDelivery(req, res){
-        const user = req.body; //CAPTURA LOS DATOS DE USUARIO
-        //const id_store = req.body.id_store;
-
-        User.registerDelivery(user, (err, data) =>{
+    async updateNotificationToken(req, res){
+        const id = req.body.id;
+        const token = req.body.token;
+        console.log('ID ', id);
+        console.log('TOKEN ', token);
+        User.updateNotificationToken(id, token, (err, data) =>{
 
             if(err){
                 return res.status(501).json({
@@ -268,58 +302,14 @@ module.exports = {
                 });
             }
 
-            return res.status(201).json({
-                success: true,
-                message: 'El registro se realizo correctamente',
-                data: data //ES EL ID DEL NUEVO USUARIO
-            });
+            else{
+                return res.status(201).json({
+                    success: true,
+                    message: 'El token se actualizo correctamente',
+                    data:id
+                });
+            }
         });
     },
 
-    async createDeliveryWithImage(req, res){
-        console.log(req.body.user);
-        const user = JSON.parse(req.body.user); //CAPTURA LOS DATOS DE USUARIO
-        //const id_store = req.params.id_store;
-        const files = req.files;
-
-        if(files.length > 0){
-            const path = `image_${Date.now()}`;
-            const url = await storage(files[0], path);
-
-            if (url != undefined && url != null){
-                user.image = url;
-            }
-        }
-
-        User.registerDelivery(user, (err, data) =>{
-
-            if(err){
-                return res.status(501).json({
-                    success: false,
-                    message: 'Hubo un error con el registro del usuario',
-                    error: err
-                });
-            }
-
-            user.id = `${data}`;
-            const token = jwt.sign({id: user.id, email: user.email}, keys.secretOrKey,{});
-            user.session_token = `JWT ${token}`;
-
-            StoreHasDelivery.create(user.id, delivery.id, (err, id_data) => {
-                if(err){
-                    return res.status(501).json({
-                        success: false,
-                        message: 'Hubo un error con la asignacion de repartidor_tienda',
-                        error: err
-                    });
-                }
-            });
-
-                        return res.status(201).json({
-                            success: true,
-                            message: 'El registro se realizo correctamente',
-                            data: user
-                        });
-        });  
-    },*/
 }

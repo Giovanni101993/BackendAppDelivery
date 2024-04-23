@@ -255,21 +255,19 @@ Order.create = (order, result) => {
         INSERT INTO 
             orders(
                 id_client,
-                id_store,
                 id_address,
                 status,
                 timestamp,
                 created_at,
                 updated_at
             )
-        VALUES(?, ?, ?, ?, ?, ?, ?)
+        VALUES(?, ?, ?, ?, ?, ?)
     `;
 
     db.query(
         sql,
         [
             order.id_client,
-            order.id_store,
             order.id_address,
             'PAGADO', //1.Pagado, 2.Despachado, 3.En camino, 4.Entregado
             Date.now(),

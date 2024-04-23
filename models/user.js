@@ -54,30 +54,39 @@ User.findById = (id, result) => {
     )
 }
 
-User.findDeliveryMen = (result) => {
+User.findDeliveryMen = (id_store, result) => {
     const sql= `
-        SELECT
-        U.id,
-        U.email,
-        U.name,
-        U.lastname,
-        U.image,
-        U.phone
-    FROM
-        users as U
-    INNER JOIN
-        user_has_roles as UHR
-    ON
-        UHR.id_user = U.id
-    INNER JOIN 
-        roles as R
-    ON
-        R.id = UHR.id_rol
-    WHERE
-        R.id = 4
+   
+    SELECT
+    CONVERT(U.id, char) AS id,
+    U.email,
+    U.name,
+    U.lastname,
+    U.id_store,
+    U.image,
+    U.phone,
+    U.notification_token
+FROM
+    users AS U
+INNER JOIN
+    user_has_roles AS UHR
+ON
+    UHR.id_user = U.id 
+INNER JOIN
+    roles AS R
+ON
+    R.id = UHR.id_rol
+INNER JOIN
+    store_has_delivery AS SHD
+ON
+    SHD.id_delivery = U.id
+WHERE
+    U.id_store= 1
+    AND
+    R.id = 4;
     `;
     db.query(
-        sql,
+        sql, [id_store], 
         (err, data) =>{
             if(err){
                 console.log('Error: ', err);
@@ -155,10 +164,11 @@ User.create = async (user, result) => {
                 phone,
                 image,
                 password,
+                id_store,
                 created_at,
                 updated_at
             )
-        VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     `;
 
     db.query
@@ -174,6 +184,7 @@ User.create = async (user, result) => {
             user.phone,
             user.image,
             hash,
+            user.id_store,
             new Date(),
             new Date() 
         ],
@@ -298,36 +309,23 @@ User.getAllStore = (resultado) => {
     )
 }
 
-/*User.registerDelivery = async (delivery, result) => {
-
-    const hash = await bcrypt.hash(delivery.password, 10);
+User.updateNotificationToken = (id, token, result) =>{
     const sql = `
-        INSERT INTO
-            delivery(
-                email,
-                name,
-                lastname,
-                phone,
-                image,
-                password,
-                created_at,
-                updated_at
-            )
-        VALUES(?, ?, ?, ?, ?, ?, ?, ?)
+    UPDATE
+        users
+    SET
+        notification_token = ?,
+        updated_at = ?
+    WHERE
+        id = ?
     `;
 
-    db.query
-    (
+    db.query(
         sql,
         [
-            delivery.email,
-            delivery.name,
-            delivery.lastname,
-            delivery.phone,
-            delivery.image,
-            hash,
+            token,
             new Date(),
-            new Date() 
+            id
         ],
         (err, res) =>{
             if(err){
@@ -335,11 +333,11 @@ User.getAllStore = (resultado) => {
                 result(err, null);
             }
             else{
-                console.log('Id del nuevo usuario: ', res.insertId);
-                result(null, res.insertId);
+                console.log('Usuario actualizado: ', id);
+                result(null, id);
             }
         }
     )
-}*/
+}
 
 module.exports = User;

@@ -14,11 +14,11 @@ module.exports = (app, upload) =>{
     app.put('/api/users/update', passport.authenticate('jwt', {session: false}), upload.array('image', 1), usersController.updateWithImage);
     app.put('/api/users/updateWithoutImage', passport.authenticate('jwt', {session: false}),usersController.updateWithoutImage);
 
-    app.get('/api/users/findDeliveryMen', passport.authenticate('jwt', {session: false}),usersController.findDeliveryMen);
+    app.get('/api/users/findDeliveryMen/:id_store', passport.authenticate('jwt', {session: false}),usersController.findDeliveryMen);
     app.get('/api/users/findByRol/:id_user/:id_rol', passport.authenticate('jwt', {session: false}),usersController.findByRol);
 
     app.get('/api/users/getAllStore', passport.authenticate('jwt', {session: false}),usersController.getAllStore);
+    app.put('/api/users/updateNotificationToken', passport.authenticate('jwt', {session: false}),usersController.updateNotificationToken);
 
-    //app.post('/api/users/createDelivery',  usersController.createDelivery);
-    //app.post('/api/users/createDeliveryWithImage', upload.array('image', 1), usersController.createDeliveryWithImage);
+    
 }

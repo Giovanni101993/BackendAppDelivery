@@ -80,9 +80,8 @@ module.exports = {
 
     async create(req, res){
         const order = req.body;
-        //const product = req.body;
 
-        Order.create(order, id_user, async (err, id) =>{
+        Order.create(order, async (err, id) =>{
 
             if(err){
                 return res.status(501).json({

@@ -25,7 +25,7 @@ StoreHasDelivery.create = (id_store, id_delivery, result) => {
                 result(err, null);
             }
             else{
-                console.log('Id del admin con productos', res.insertId);
+                console.log('Id del delivery', res.insertId);
                 result(null, res.insertId);
             }
         }

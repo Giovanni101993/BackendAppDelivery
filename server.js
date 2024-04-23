@@ -6,18 +6,28 @@ const logger = require('morgan');
 const cors = require('cors');
 const passport = require('passport');
 const multer = require('multer');
-const io = require('socket.io')(server);
+const io = require('socket.io')(server); 
+const mercadopago = require('mercadopago');
+
+
+const token = 'TEST-7299991881943845-042021-bbdf084b847c36b190cbf5a02c7223dc-357970647';
+mercadopago.configure({
+    sandbox: true,
+    access_token: token
+});
 
 //IMPORTAR RUTAS
 const usersRoutes = require('./routes/usersRoutes');
-const deliveryRoutes = require('./routes/deliveryRoutes');
+const storeRoutes = require('./routes/storeRoutes');
 const categoriesRoutes = require('./routes/categoryRoutes');
 const productRoutes = require('./routes/productRoutes');
 const addressRoutes = require('./routes/addressRoutes');
 const orderRoutes = require('./routes/orderRoutes');
+const mercadoPagoRoutes = require('./routes/mercadoPagoRoutes');
 const paymentRoutes = require('./routes/paymentRoutes');
-const ordersSocket = require('./sockets/ordersSocket');
+const stripeRoutes = require('./routes/stripeRoutes');
 
+const ordersSocket = require('./sockets/ordersSocket');
 
 const port = process.env.PORT || 3000;
 //const port = process.env.PORT || 3306;
@@ -45,12 +55,14 @@ const upload = multer({
 
 //LLAMADO DE LAS RUTAS
 usersRoutes(app, upload);
-deliveryRoutes(app, upload);
+storeRoutes(app, upload);
 categoriesRoutes(app, upload);
 productRoutes(app, upload);
 addressRoutes(app);
 orderRoutes(app);
+mercadoPagoRoutes(app);
 paymentRoutes(app, upload);
+stripeRoutes(app);
 
 /*server.listen(3306, '185.27.134.135' || '185.27.134.135', function(){
     console.log('Aplicacion de nodeJS ' + port + ' Iniciada...')
